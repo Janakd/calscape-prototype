@@ -51,6 +51,11 @@
   text-decoration: none;
   border-bottom-color: rgba(255, 255, 255, 0.6);
 }
+.site-nav a.active {
+  color: #fff;
+  font-weight: 600;
+  border-bottom-color: #fff;
+}
 
 .search-form {
   flex: 1;
