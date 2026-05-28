@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Calscape Prototype — Tests</title>
+  <style>
+    body { font-family: monospace; padding: 20px; }
+    .pass { color: green; }
+    .fail { color: red; font-weight: bold; }
+    pre { background: #f4f4f4; padding: 10px; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <h1>Search.js tests</h1>
+  <div id="results"></div>
+
+  <script src="js/plants-data.js"></script>
+  <script src="js/search.js"></script>
+  <script src="js/toc.js"></script>
+  <script>
+    const out = document.getElementById('results');
+    let passed = 0, failed = 0;
+
+    function assert(name, condition, details) {
+      const el = document.createElement('div');
+      if (condition) {
+        el.className = 'pass';
+        el.textContent = '✓ ' + name;
+        passed++;
+      } else {
+        el.className = 'fail';
+        el.innerHTML = '✗ ' + name + (details ? '<pre>' + details + '</pre>' : '');
+        failed++;
+      }
+      out.appendChild(el);
+    }
+
+    // --- TESTS ---
+
+    assert('Calscape.search namespace exists',
+      typeof window.Calscape === 'object' && typeof window.Calscape.search === 'object');
+
+    assert('buildSearchString concatenates fields',
+      typeof Calscape.search.buildSearchString === 'function');
+
+    const sampleString = Calscape.search.buildSearchString(window.PLANTS_DATA[0]);
+    assert('buildSearchString includes common_name',
+      sampleString.toLowerCase().includes('manzanita'),
+      'got: ' + sampleString);
+
+    assert('buildSearchString includes propagation keyword',
+      sampleString.toLowerCase().includes('cuttings'),
+      'got: ' + sampleString);
+
+    // score()
+    const manzanita = window.PLANTS_DATA[0];
+    const scoreNameMatch = Calscape.search.score('manzanita', manzanita);
+    assert('score returns object with score and matchedField',
+      typeof scoreNameMatch === 'object' && 'score' in scoreNameMatch && 'matchedField' in scoreNameMatch);
+
+    assert('name match scores higher than keyword match',
+      Calscape.search.score('manzanita', manzanita).score >
+      Calscape.search.score('cuttings', manzanita).score);
+
+    assert('propagation keyword match sets matchedField=propagation',
+      Calscape.search.score('cuttings', manzanita).matchedField === 'propagation');
+
+    assert('name match sets matchedField=name',
+      Calscape.search.score('manzanita', manzanita).matchedField === 'name');
+
+    assert('no match returns score 0',
+      Calscape.search.score('zzzzz-no-match', manzanita).score === 0);
+
+    // search()
+    const results = Calscape.search.search('manzanita', window.PLANTS_DATA);
+    assert('search returns array',
+      Array.isArray(results));
+
+    assert('search puts best match first',
+      results[0].plant.slug === 'manzanita');
+
+    assert('search returns at most 10 results',
+      Calscape.search.search('e', window.PLANTS_DATA).length <= 10);
+
+    assert('empty query returns empty array',
+      Calscape.search.search('', window.PLANTS_DATA).length === 0);
+
+    assert('search across propagation keywords finds plants',
+      Calscape.search.search('division', window.PLANTS_DATA).length >= 2);
+
+    // highlight()
+    assert('highlight wraps matches in <mark>',
+      Calscape.search.highlight('Manzanita propagation', 'propagation').includes('<mark>propagation</mark>'));
+
+    assert('highlight is case-insensitive',
+      Calscape.search.highlight('Manzanita propagation', 'MANZANITA').includes('<mark>Manzanita</mark>'));
+
+    assert('highlight escapes HTML',
+      Calscape.search.highlight('<script>x</script>', 'x').includes('&lt;script&gt;'));
+
+    // resultUrl()
+    const propResult = { plant: { slug: 'manzanita' }, matchedField: 'propagation' };
+    const nameResult = { plant: { slug: 'manzanita' }, matchedField: 'name' };
+    assert('resultUrl deep-links to #propagation when matched field is propagation',
+      Calscape.search.resultUrl(propResult) === 'plants/manzanita.html#propagation');
+    assert('resultUrl omits anchor when matched field is name',
+      Calscape.search.resultUrl(nameResult) === 'plants/manzanita.html');
+
+    // toc.js tests are integration-only (depend on DOM layout).
+    // We test only the pure helper exposed for testing.
+    assert('Calscape.toc namespace exists',
+      typeof window.Calscape.toc === 'object');
+    assert('Calscape.toc.findActiveSection is a function',
+      typeof window.Calscape.toc.findActiveSection === 'function');
+
+    // findActiveSection takes an array of {id, top} and a scrollY value;
+    // returns the id of the section whose top is the largest top <= scrollY.
+    const sections = [
+      { id: 'overview', top: 0 },
+      { id: 'at-a-glance', top: 400 },
+      { id: 'habitat', top: 900 },
+      { id: 'propagation', top: 1500 }
+    ];
+    assert('findActiveSection returns first section when scrollY=0',
+      Calscape.toc.findActiveSection(sections, 0) === 'overview');
+    assert('findActiveSection returns correct mid section',
+      Calscape.toc.findActiveSection(sections, 950) === 'habitat');
+    assert('findActiveSection returns last when scrolled past all',
+      Calscape.toc.findActiveSection(sections, 5000) === 'propagation');
+    assert('findActiveSection returns first when array is empty',
+      Calscape.toc.findActiveSection([], 100) === null);
+
+    // Summary
+    const summary = document.createElement('h2');
+    summary.textContent = `${passed} passed · ${failed} failed`;
+    summary.style.color = failed === 0 ? 'green' : 'red';
+    out.appendChild(summary);
+  </script>
+</body>
+</html>

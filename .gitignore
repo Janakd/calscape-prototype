@@ -1,0 +1,10 @@
+# macOS
+.DS_Store
+
+# Visual brainstorming companion artifacts (mockups + state)
+.superpowers/
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp

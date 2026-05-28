@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Search · Calscape</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Poppins:wght@300;400;500;600;700&display=swap">
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/layout.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="index.html">Calscape</a>
+    <nav class="site-nav" aria-label="Primary">
+      <a href="index.html">Native plants</a>
+      <a href="#">Pollinators</a>
+      <a href="#">Nurseries</a>
+      <a href="#">Landscapers</a>
+      <a href="#">Garden care &amp; design</a>
+    </nav>
+  </header>
+
+  <main class="search-page">
+    <h1 id="search-heading">Search</h1>
+    <p class="muted" id="search-meta"></p>
+
+    <ul id="search-results" class="result-list"></ul>
+
+    <div id="search-empty" class="empty-state" hidden>
+      <p>No plants found. Try a different term or browse featured plants below.</p>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p class="small muted">Prototype — California Native Plant Society</p>
+  </footer>
+
+  <script src="assets/js/plants-data.js"></script>
+  <script src="assets/js/search.js"></script>
+  <script>
+    (function () {
+      const params = new URLSearchParams(window.location.search);
+      const q = (params.get('q') || '').trim();
+      const _inp = document.getElementById('search-input');
+      if (_inp) _inp.value = q;
+      document.getElementById('search-heading').textContent =
+        q ? `Results for "${q}"` : 'Search plants';
+
+      const results = Calscape.search.search(q, window.PLANTS_DATA);
+      const meta = document.getElementById('search-meta');
+      const list = document.getElementById('search-results');
+      const empty = document.getElementById('search-empty');
+
+      if (!q) {
+        meta.textContent = 'Type a plant name, habitat, or task — e.g., "manzanita", "drought tolerant", "cuttings".';
+        return;
+      }
+
+      meta.textContent = `${results.length} plant${results.length === 1 ? '' : 's'} match`;
+
+      if (results.length === 0) {
+        empty.hidden = false;
+        return;
+      }
+
+      results.forEach(r => {
+        const li = document.createElement('li');
+        li.className = 'result-card';
+        li.innerHTML = `
+          <a class="result-link" href="${Calscape.search.resultUrl(r)}">
+            <div class="result-thumb" style="background-image:url('${r.plant.thumb}')"></div>
+            <div class="result-body">
+              <div class="result-name">${Calscape.search.highlight(r.plant.common_name, q)}</div>
+              <div class="result-sci italic muted small">${Calscape.search.highlight(r.plant.scientific_name, q)}</div>
+              <div class="result-summary small">${Calscape.search.highlight(r.plant.summary, q)}</div>
+            </div>
+          </a>
+        `;
+        list.appendChild(li);
+      });
+    })();
+  </script>
+</body>
+</html>
