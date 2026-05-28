@@ -126,7 +126,13 @@
   margin: 0 auto;
   text-align: center;
 }
-.hero h1 { color: #fff; font-size: 3rem; font-weight: 600; letter-spacing: -0.02em; }
+.hero h1 {
+  color: #fff;
+  font-family: "Poppins", -apple-system, system-ui, sans-serif;
+  font-size: 3rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
 .hero-tagline { font-size: 1.15rem; opacity: 0.95; margin-bottom: 32px; font-weight: 300; color: #fff; }
 
 .hero-search {
