@@ -303,26 +303,10 @@ mark {
   background: #fff;
 }
 
-/* --- New plant top section (photo-left, info-right, matches target prototype) --- */
+/* --- Plant top section (title + sci name + intro, full width) --- */
 .plant-top {
   background: #fff;
-  display: flex;
-  gap: 40px;
-  align-items: flex-start;
-  flex-wrap: wrap;
-  padding: 24px 20px 28px 20px;
-}
-.plant-top-photo {
-  width: 380px;
-  max-width: 100%;
-  height: 220px;
-  background-color: #e5e7eb;
-  background-size: cover;
-  background-position: center;
-  border-radius: 16px;
-  flex-shrink: 0;
-  position: relative;
-  overflow: hidden;
+  padding: 24px 20px 12px;
 }
 .plant-photo-chip {
   position: absolute;
@@ -338,12 +322,11 @@ mark {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 .plant-top-info {
-  flex: 1 1 320px;
-  min-width: 280px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  padding-top: 8px;
+  gap: 12px;
+  padding-top: 4px;
+  max-width: 832px;
 }
 .plant-top-name {
   font-family: "Poppins", -apple-system, system-ui, sans-serif;
@@ -422,14 +405,31 @@ mark {
   gap: 0;
   background: #fff;
 }
-.plant-toc {
-  background: transparent;
-  padding: 32px 20px;
+/* --- Sticky sidebar: thumbnail + TOC stack together --- */
+.plant-sidebar {
   position: sticky;
   top: 110px;
   align-self: start;
-  height: calc(100vh - 110px);
+  max-height: calc(100vh - 130px);
   overflow-y: auto;
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.plant-sidebar-photo {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background-color: var(--green-100);
+  background-size: cover;
+  background-position: center;
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+.plant-toc {
+  background: transparent;
+  padding: 0;
+  margin: 0;
 }
 .plant-toc-label {
   font-size: 0.72rem;
@@ -673,7 +673,7 @@ mark {
   .plant-hero-name { font-size: 2.125rem; }
 
   .plant-body { grid-template-columns: 1fr; }
-  .plant-toc { display: none; }
+  .plant-sidebar { display: none; }
   .plant-content { padding: 24px 20px; }
 
   .mobile-toc {
